@@ -70,11 +70,14 @@ public class PassengerId {
 		return true;
 	}
 
-	public static List<PassengerId> createList(int...passengerNumbers) throws ValidationException {
+	public static List<PassengerId> createList(Integer...passengerNumbers) throws ValidationException {
 		
 		ArrayList<PassengerId> list = new ArrayList<PassengerId>();
-		for (int passengerNumber : passengerNumbers) {
-			list.add(PassengerId.of(passengerNumber));
+		for (Integer passengerNumber : passengerNumbers) {
+			if (passengerNumber != null)
+				list.add(PassengerId.of(passengerNumber));
+			else 
+				list.add(null);
 		}
 		return list;
 	}

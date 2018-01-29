@@ -20,15 +20,23 @@ public class Specification {
 		this.groups = groups;
 	}
 
+	/**
+	 * Parse specification from input string.
+	 * @param string
+	 * @return
+	 * @throws ValidationException
+	 */
 	public static Specification parseSpecification(String string) throws ValidationException {
 		
 		final String[] lines = string.split("\n");
 		
+		// At least, there must be one line.
 		if (lines.length == 0)
 			throw new ValidationException("Incorrect number of input lines.");
 		
 		final String[] firstLine = lines[0].split(" ");
 		
+		// First line must have two numbers
 		if (firstLine.length != 2)
 			throw new ValidationException("First line must be two numbers separate by space.");
 		
@@ -42,6 +50,7 @@ public class Specification {
 		if (cols <= 0)
 			throw new ValidationException("Colums value must be a natural number.");
 		
+		// Then, parse the groups.
 		final List<Group> groups = new ArrayList<>();
 		
 		for (int i = 0; i < lines.length - 1; i++) {
@@ -82,6 +91,10 @@ public class Specification {
 			return group;
 		}
 	
+		/**
+		 * Returns the number of windows requested by a group of passengers.
+		 * @return
+		 */
 		public int windowsNeeded() {
 			return (int) stream().filter(preference -> preference.windowPrefered()).count();
 		}
@@ -103,6 +116,12 @@ public class Specification {
 			this.windowPrefered = windowPrefered;
 		}
 		
+		/**
+		 * Parse a passenger token.
+		 * @param specification
+		 * @return
+		 * @throws ValidationException
+		 */
 		public static PassengerPreference parsePassanger(String specification) throws ValidationException {
 			
 			int passangerNumber = Integer.parseInt(specification.replace("W", ""));
@@ -110,7 +129,15 @@ public class Specification {
 			
 			return new PassengerPreference(PassengerId.of(passangerNumber), windowPreference);
 		}
+		
+		public PassengerId passangerId() {
+			return passengerId;
+		}
 	
+		/**
+		 * Indicates if the passenger prefers a window seat. 
+		 * @return
+		 */
 		public boolean windowPrefered() {
 			return windowPrefered;
 		}
@@ -141,10 +168,6 @@ public class Specification {
 			if (windowPrefered != other.windowPrefered)
 				return false;
 			return true;
-		}
-	
-		public PassengerId passangerId() {
-			return passengerId;
 		}
 		
 		public String toString() {

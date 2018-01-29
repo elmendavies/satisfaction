@@ -7,28 +7,46 @@ import java.util.List;
 import satisfaction.Specification.Group;
 import satisfaction.Specification.PassengerPreference;
 
+/**
+ * This calculator distributes the given groups in the order of appearing in the {@link Specification}.
+ * It has two passes. The first one assigns seats to passengers that are fully satisfied. Then,
+ * in a second pass, the rest of passengers are assigned in order until the plain is full. 
+ * @author mme
+ *
+ */
 public class SimpleCalculator implements DistributionCalculator {
 
+	/**
+	 * @see {@link DistributionCalculator}
+	 */
 	@Override
-	public Distribution calculate(Specification specification) {
+	public Distribution calculateFor(Specification specification) {
 		
+		// Create a copy to work with.
 		List<Group> candidates = new ArrayList<>(specification.groups);
 		
-		PassengerId[][] assignments = new PassengerId[specification.rows][specification.rows];
+		PassengerId[][] assignments = new PassengerId[specification.rows][specification.cols];
 		
+		// First and second passes.
 		firstPass(specification, candidates, assignments);
 		secondPass(specification, candidates, assignments);
 		
 		return new Distribution(assignments);
 	}
 
+	/**
+	 * These method tries to assign passengers that will be fully satisfied.
+	 * @param specification The specification.
+	 * @param candidates Input/output parameter with the candidates.
+	 * @param assignments Output parameter with the arrays of assignments.
+	 */
 	private void firstPass(Specification specification, List<Group> candidates, PassengerId[][] assignments) {
 		
 		int row = 0;
 		int column = 0;
 		
 		/**
-		 * Cursor will move on the asignments like a typewriter, picking a group and filling the
+		 * Cursor will move on the assignments like a typewriter, picking a group and filling the
 		 * assignment with it. If there is no group that fulfills the hole the algorithm goes to the next line. 
 		 */
 		while (row < specification.rows) {
@@ -36,17 +54,30 @@ public class SimpleCalculator implements DistributionCalculator {
 			int space = specification.cols - column;
 			boolean leftAvailable = column == 0;
 			
-			Group group = pickUpCandidate(candidates, space, leftAvailable);
+			// At least, if using the whole space, the available windows is 1.
+			int availableWindows = 1;
+			
+			// If left is available, then add it to the total of avaiable windows.
+			if (leftAvailable)
+				availableWindows++;
+			
+			// Get a candidate group.
+			Group group = pickUpCandidate(candidates, space, availableWindows);
 			
 			if (group != null) {
+				// Hack for special case: if only a window is needed, move the passenger to the right windows
 				if (group.windowsNeeded() == 1 && space == group.size()) 
 					leftAvailable = false;
 				
-				column = copyPassengers(group, assignments, row, column, leftAvailable);
+				// Copy passengers and get the new column value.
+				copyPassengers(group, assignments, row, column, leftAvailable);
 				
+				// Update
+				column += group.size();
 				candidates.remove(group);
 			}
 			
+			// If no group was electable or row is completed, advance to next row.   
 			if (group == null || column == specification.cols) {
 				column = 0;
 				row++;
@@ -54,6 +85,12 @@ public class SimpleCalculator implements DistributionCalculator {
 		}
 	}
 	
+	/**
+	 * This method assigns as much passengers as possible that could not be fully satisfied to the free seats.
+	 * @param specification
+	 * @param candidates
+	 * @param assignments
+	 */
 	private void secondPass(Specification specification, List<Group> candidates, PassengerId[][] assignments) {
 		List<PassengerPreference> remaining = new ArrayList<>();
 		
@@ -74,7 +111,14 @@ public class SimpleCalculator implements DistributionCalculator {
 		}
 	}
 
-	private Group pickUpCandidate(List<Group> candidates, int space, boolean leftAvailable) {
+	/**
+	 * Looks for a candidate.
+	 * @param candidates
+	 * @param space
+	 * @param availableWindows
+	 * @return
+	 */
+	private Group pickUpCandidate(List<Group> candidates, int space, int availableWindows) {
 		for (Group group : candidates) {
 			int size = group.size();
 			
@@ -82,8 +126,8 @@ public class SimpleCalculator implements DistributionCalculator {
 			if (size > space)
 				continue;
 			
-			// Does not use all space and wants window.
-			if (size < space && group.windowsNeeded() > 0 && ! leftAvailable)
+			// Does not use all space and wants more windows that available.
+			if (size < space && group.windowsNeeded() >= availableWindows)
 				continue;
 			
 			return group;
@@ -91,19 +135,35 @@ public class SimpleCalculator implements DistributionCalculator {
 		return null;
 	}
 
-	private int copyPassengers(Group group, PassengerId[][] assignments, int row, int column, boolean leftAvailable) {
-		Iterator<PassengerPreference> windowPassengers = group.stream().filter(preference -> preference.windowPrefered()).iterator();
-		Iterator<PassengerPreference> restOfPassengers = group.stream().filter(preference -> ! preference.windowPrefered()).iterator();
+	/**
+	 * Copy passengers to the assigned space. Tries to assign according to window preferences. 
+	 * @param group
+	 * @param assignments
+	 * @param row
+	 * @param column
+	 * @param leftAvailable
+	 */
+	private void copyPassengers(Group group, PassengerId[][] assignments, int row, int column, boolean leftAvailable) {
 		
+		// Passengers with window preferences.
+		Iterator<PassengerPreference> windowPassengers 
+			= group.stream().filter(preference -> preference.windowPrefered()).iterator();
+		
+		// Passengers without window preference.
+		Iterator<PassengerPreference> restOfPassengers 
+			= group.stream().filter(preference -> ! preference.windowPrefered()).iterator();
+		
+		// If the left window is available assign it to first of window passengers.
 		if (leftAvailable && windowPassengers.hasNext())
 			assignments[row][column++] = windowPassengers.next().passangerId();
 		
+		// Next, add the passengers without window preference. 
 		while (restOfPassengers.hasNext()) 
 			assignments[row][column++] = restOfPassengers.next().passangerId();
 		
-		if (windowPassengers.hasNext()) 
+		// Next, add the rest of window preference passengers.
+		while (windowPassengers.hasNext()) 
 			assignments[row][column++] = windowPassengers.next().passangerId();
-		return column;
 	}
 
 }

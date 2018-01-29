@@ -6,8 +6,12 @@ import org.junit.Test;
 
 public class AllOrNothingSatisfactionIndexCalculatorTest {
 
+	/**
+	 * A simple test to check that the calculator is correct
+	 * @throws ValidationException
+	 */
 	@Test
-	public void test() throws ValidationException {
+	public void testAtLeastThatExampleWorks() throws ValidationException {
 		PassengerId[][] assignments = new PassengerId[3][4];
 		
 		Specification specification = Specification.parseSpecification(

@@ -22,7 +22,7 @@ public class IntegrationTest {
 				"13 14\n" + 
 				"15 16");
 		
-		Distribution distribution = calculator.calculate(specification);
+		Distribution distribution = calculator.calculateFor(specification);
 		
 		SatisfactionIndex index = satisfactionIndexCalculator.satisfactionIndexOf(specification, distribution);
 		

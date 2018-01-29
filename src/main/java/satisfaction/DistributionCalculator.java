@@ -12,5 +12,5 @@ public interface DistributionCalculator {
 	 * @param specification A valid specification.
 	 * @return The distribution calculated.
 	 */
-	Distribution calculate(Specification specification);
+	Distribution calculateFor(Specification specification);
 }

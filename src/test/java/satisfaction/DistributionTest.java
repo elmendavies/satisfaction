@@ -22,7 +22,7 @@ public class DistributionTest {
 	}
 	
 	@Test
-	public void testPassangersThatAreThere() throws ValidationException {
+	public void testPassangersThatExists() throws ValidationException {
 		
 		Distribution distribution = new Distribution(passengers_1);
 		
@@ -35,7 +35,7 @@ public class DistributionTest {
 		// Get a passenger to test
 		PassengerId passengerId = passengers_1[row][column];
 		
-		Cursor coordinates = distribution.coordinatesOf(passengerId);
+		Cursor coordinates = distribution.cursorOf(passengerId);
 		
 		assertEquals(row, coordinates.row());
 		assertEquals(column, coordinates.column());
@@ -46,14 +46,14 @@ public class DistributionTest {
 		
 		Distribution distribution = new Distribution(passengers_1);
 		
-		assertNull(distribution.coordinatesOf(PassengerId.of(5)));
+		assertNull(distribution.cursorOf(PassengerId.of(5)));
 	}
 	
 	@Test
 	public void testIsWindow() throws ValidationException {
 		Distribution distribution = new Distribution(passengers_1);
 		
-		assertTrue(distribution.coordinatesOf(PassengerId.of(10)).isInWindow());
-		assertTrue(distribution.coordinatesOf(PassengerId.of(11)).isInWindow());		
+		assertTrue(distribution.cursorOf(PassengerId.of(10)).isInWindow());
+		assertTrue(distribution.cursorOf(PassengerId.of(11)).isInWindow());		
 	}
 }

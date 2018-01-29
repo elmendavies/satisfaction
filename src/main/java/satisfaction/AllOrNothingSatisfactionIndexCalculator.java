@@ -6,6 +6,26 @@ import java.util.TreeSet;
 import satisfaction.Specification.Group;
 import satisfaction.Specification.PassengerPreference;
 
+/**
+ * This index is calculated as the total of the satisfied passengers divided by the total of passengers.
+ * A passenger is satisfied if the following conditions are met:
+ * <ul>
+ * 	<li>
+ * 		The passenger must be in the distribution (i.e. onboard).
+ * 	</li>
+ * 	<li>
+ * 		Its group must be satisfied, meaning that every group members must be in the same row and no other passenger
+ * 	    can be between two members of the group.
+ * 	</li>
+ *  <li>
+ *  	If the preference of the passenger is to be in a window, then it must be in a window.
+ *  </li>  
+ *  These conditions are evaluated for each passenger in the specification. 
+ *  Passengers not onboard are unsatisfied, any member of disjoint groups.  
+ * </ul>  
+ * @author mme
+ *
+ */
 public class AllOrNothingSatisfactionIndexCalculator implements SatisfactionIndexCalculator {
 
 	@Override
@@ -36,7 +56,7 @@ public class AllOrNothingSatisfactionIndexCalculator implements SatisfactionInde
 		// 1. Walk through the passengers gathering info and checking most of things.
 		for (PassengerPreference passanger: group) {
 			
-			Distribution.Cursor coordinates = distribution.coordinatesOf(passanger.passangerId());
+			Distribution.Cursor coordinates = distribution.cursorOf(passanger.passangerId());
 			if (coordinates == null) 
 				continue;
 				
