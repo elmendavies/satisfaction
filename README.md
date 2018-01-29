@@ -24,4 +24,4 @@ THe output is the matrix with the distribution, in addition to the satisfaction 
 
 ## Comments
 
-Some improvements could be done to this algorithm. For example, to prioritize groups with window preference, and then tray to maintain the order of input specification file.   
+Some improvements could be done to this algorithm. For example, to prioritize groups with window preference, and then try to maintain the order of input specification file.   
